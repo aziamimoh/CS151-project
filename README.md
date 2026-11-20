@@ -14,4 +14,4 @@ Restaurant Simulator is a Java application developed for our CS 151 Object-Orien
 
 ## Design
 
-The project uses object-oriented design principles such as encapsulation, abstraction, high cohesion, and separation of responsibilities. Design patterns are also used where appropriate, including the Iterator Pattern for inventory traversal.
+The project uses object-oriented design principles such as encapsulation, abstraction, high cohesion, and separation of responsibilities. Design patterns are also used where appropriate.

@@ -1,16 +1,23 @@
-package restaurant;
+package com.example;
 
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 
-  //Presentation wrapper for JavaFX TableView bindings
- 
+  //Presentation wrapper for JavaFX TableView bindings and Iterator traversal.
+
 public class InventoryItem {
 
     private final Item item;
     private final IntegerProperty quantity;
 
     public InventoryItem(Item item, int initialQuantity) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        if (initialQuantity < 0) {
+            throw new IllegalArgumentException("Initial quantity cannot be negative");
+        }
         this.item = item;
         this.quantity = new SimpleIntegerProperty(initialQuantity);
     }
@@ -27,8 +34,8 @@ public class InventoryItem {
         return item.getType();
     }
 
-    public double getCost() {
-        return item.getCost();
+    public boolean isAvailable() {
+        return item.isAvailable();
     }
 
     public int getQuantity() {
@@ -36,10 +43,18 @@ public class InventoryItem {
     }
 
     public void setQuantity(int qty) {
+        if (qty < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
         quantity.set(qty);
     }
 
     public IntegerProperty quantityProperty() {
         return quantity;
+    }
+
+    @Override
+    public String toString() {
+        return item.getName() + " (Qty: " + getQuantity() + ")";
     }
 }

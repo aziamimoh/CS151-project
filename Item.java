@@ -1,38 +1,61 @@
-public class Item {
-    private String name;
+package com.example; 
+
+import java.util.Objects;
+
+public class Item implements ItemType{
+
+    private final String name;
     private String type;
-    private double cost;
     private boolean available;
 
-    public Item(String name, String type, double cost, boolean available) {
-        this.name = name;
-        this.type = type;
-        this.cost = cost;
+    public Item(String name, String type, boolean available) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Item name cannot be null or blank");
+        }
+        this.name = name.trim();
+        this.type = (type != null && !type.isBlank()) ? type.trim() : "General";
+        this.available = available;
+    }
+    @Override 
+    public String getName() {
+        return name;
+    }
+    @Override 
+    public String getType() {
+        return type;
+    }
+    @Override 
+    public void setType(String type) {
+        this.type = (type != null && !type.isBlank()) ? type.trim() : "General";
+    }
+    @Override 
+    public boolean isAvailable() {
+        return available;
+    }
+    @Override 
+    public void setAvailable(boolean available) {
         this.available = available;
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public double getCost() { return cost; }
-    public void setCost(double cost) { this.cost = cost; }
-
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
-
     public String getItem() {
-        return "Name: " + name + ", Type: " + type + ", Cost: " + cost + ", Available: " + available;
+        return "Name: " + name + ", Type: " + type + ", Available: " + available;
     }
 
-
-
-    public static void main(String[] args) throws Exception {
-   
-        Item hammer = new Item("Hammer", "Tool", 12.5, true);
-        System.out.println(hammer.getItem());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return name.equalsIgnoreCase(item.name);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name.toLowerCase());
+    }
+
+    @Override
+    public String toString() {
+        return getItem();
+    }
 }

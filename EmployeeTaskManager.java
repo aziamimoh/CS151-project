@@ -9,10 +9,6 @@ public class EmployeeTaskManager {
         tasks = new ArrayList<>();
     }
 
-    public EmployeeTaskManager(){
-        tasks = new ArrayList<>();
-    }
-
     public void addTask(Task task){
         if(!tasks.contains(task)){
             tasks.add(task);

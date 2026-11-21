@@ -1,11 +1,5 @@
 package com.example;
 
-import java.lang.classfile.Label;
-
-import javax.swing.table.TableColumn;
-import javax.swing.text.TableView;
-import javax.swing.text.TableView.TableCell;
-
 import javafx.application.Application;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -19,7 +13,6 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-public class EmployeeDashboard {
 public class EmployeeDashboard extends Application {
     private final ObservableList<Employee> employees = FXCollections.observableArrayList();
     private final FilteredList<Employee> filtered = new FilteredList<>(employees, e -> true);
@@ -206,4 +199,5 @@ public class EmployeeDashboard extends Application {
         info.setHeaderText("Edit " + employee.getName());
         info.setContentText("Connect this action to your employee editing form.");
         info.showAndWait();
+}
 }

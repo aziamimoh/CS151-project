@@ -17,6 +17,7 @@ public interface Task {
 	// assigning employee to a task
 	void assignEmployee(Employee employee);
 	void doTask(Employee employee);
+	void completeTask();
 	
 	// assigned employees for every task implement
 	List<Employee> getAssignedEmployees();

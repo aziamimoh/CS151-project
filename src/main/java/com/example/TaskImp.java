@@ -11,6 +11,7 @@ public class TaskImp implements Task {
 	private int difficulty;
 	private boolean assigned;
 	private boolean done;
+	private TaskState state = TaskState.UNASSIGNED;
 	
 	// class constructor
 	public TaskImp(String name, int length, int difficulty, boolean assigned, boolean done) {
@@ -21,6 +22,113 @@ public class TaskImp implements Task {
 		this.assigned = assigned;
 		this.done = done;
 	}
+	
+	// state pattern implementation
+	private enum TaskState {
+		UNASSIGNED {
+			@Override
+			boolean assign(TaskImp task, Employee employee) {
+				return task.assignFromUnassigned(employee);
+			}
+		},
+
+		ASSIGNED {
+			@Override
+			boolean start(TaskImp task, Employee employee) {
+				return task.startFromAssigned(employee);
+			}
+		},
+
+		IN_PROGRESS {
+			@Override
+			boolean start(TaskImp task, Employee employee) {
+				return task.startFromAssigned(employee);
+			}
+
+			@Override
+			boolean complete(TaskImp task) {
+				return task.completeFromInProgress();
+			}
+		},
+
+		COMPLETED;
+
+			boolean assign(TaskImp task, Employee employee) {
+				return false;
+			}
+
+			boolean start(TaskImp task, Employee employee) {
+				return false;
+			}
+
+			boolean complete(TaskImp task) {
+				return false;
+			}
+			
+	}
+	
+	// helper methods for state pattern behavior
+    // assign employee while task is NOT assigned
+    private boolean assignFromUnassigned(Employee employee) {
+        if (employee == null || employee.isWorking() || employee.isAssignedTask()) {
+            return false;
+        }
+
+        employees.add(employee);
+        employee.addTask(this);
+        employee.setTaskStatus(true);
+
+        state = TaskState.ASSIGNED;
+
+        return true;
+    }
+
+
+    // Start task while task is ASSIGNED
+    private boolean startFromAssigned(Employee employee) {
+        if (employee == null || !employees.contains(employee) || employee.isWorking()) {
+            return false;
+        }
+
+        employee.setWorking(true);
+        state = TaskState.IN_PROGRESS;
+
+        return true;
+    }
+
+
+    // Complete task while task is IN_PROGRESS
+    private boolean completeFromInProgress() {
+        if (employees.isEmpty()) {
+            return false;
+        }
+
+        for (Employee employee : new ArrayList<>(employees)) {
+            employee.removeTask(this);
+            employee.setTaskStatus(false);
+            employee.setWorking(false);
+        }
+
+        employees.clear();
+        state = TaskState.COMPLETED;
+
+        return true;
+    }
+
+
+    // Unassign task while task is ASSIGNED
+    private boolean unassignFromAssigned() {
+        for (Employee employee : new ArrayList<>(employees)) {
+            employee.removeTask(this);
+            employee.setTaskStatus(false);
+            employee.setWorking(false);
+        }
+
+        employees.clear();
+        state = TaskState.UNASSIGNED;
+
+        return true;
+    }
 	
 	// getters and setters
 	@Override
@@ -77,6 +185,7 @@ public class TaskImp implements Task {
 			for (Employee employee : new ArrayList<>(employees)) {
 				// updating employee attributes based on task that is done 
 				employee.removeTask(this);
+				employee.setTaskStatus(false);
 				employee.setWorking(false);
 			}
 		
@@ -101,9 +210,15 @@ public class TaskImp implements Task {
 			// add Employee employee onto list that is working on task
 			employees.add(employee);
 			employee.addTask(this);
+			employee.setTaskStatus(true);
 				
 			assigned = true;
 		}
+	}
+	
+	@Override
+	public void completeTask() {
+		state.complete(this);
 	}
 	
 	// do task that it is assigned to

@@ -4,26 +4,45 @@ public class EmployeeImp extends Employee{
 
     private EmployeeTaskManager taskManager;
 
-    public EmployeeImp(String name, int id, int skillLevel, boolean working){
-        super(name, id, skillLevel, working);
-        this.taskManager = new EmployeeTaskManager();
+    public EmployeeImp(String name, int id, int skillLevel, boolean working, boolean hasTask){
+        super(name, id, skillLevel, working, hasTask);
     }
+
+    @Override 
+    public String getName(){
+        return name;
+    }
+
+    @Override 
+    public int getId(){
+        return id;
+    }
+
+    @Override 
+    public int getSkillLevel(){
+        return skillLevel;
+    }
+
+    @Override 
+    public void setSkillLevel(int skillLevel){
+        this.skillLevel = skillLevel;
+    }
+
+    @Override 
+    public boolean isWorking(){
+        return working;
+    }
+
+    @Override
+    public void setWorking(boolean working)
+    {
+        this.working = working;
+    }
+    
     @Override 
     public boolean isAssignedTask()
     {
         return !taskManager.getTasks().isEmpty();
-    }
-
-    @Override
-    public void addTask(Task task)
-    {
-        taskManager.addTask(task);
-    }
-
-    @Override
-    public void removeTask(Task task)
-    {
-        taskManager.removeTask(task);
     }
 
     public EmployeeTaskManager getTaskManager()

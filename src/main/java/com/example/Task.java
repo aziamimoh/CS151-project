@@ -1,6 +1,6 @@
 package com.example;
 
-import java.util.list;
+import java.util.List;
 
 public interface Task {
 	String getName();
@@ -19,6 +19,6 @@ public interface Task {
 	void doTask(Employee employee);
 	
 	// assigned employees for every task implement
-	List<Employee> getAssignedEmployees;
+	List<Employee> getAssignedEmployees();
 }
 

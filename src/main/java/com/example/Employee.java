@@ -38,4 +38,9 @@ public abstract class Employee {
     }
 
     public abstract boolean isAssignedTask();
+
+    // used by TaskImp when assigning / finishing tasks
+    public abstract void addTask(Task task);
+
+    public abstract void removeTask(Task task);
 }

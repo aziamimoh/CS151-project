@@ -17,6 +17,12 @@ public class TaskManager {
 	// same methods as in EmployeeTaskManager, but for different collections
 	// EmployeeTaskManager --> an employee's tasks
 	// TaskManager --> all tasks in the restaurant
+	public void addTask(Task task) {
+		if (!tasks.contains(task)) {
+			tasks.add(task);
+		}
+	}
+
 	public void removeTask(Task task) {
 		tasks.remove(task);
 	}
@@ -80,7 +86,7 @@ public class TaskManager {
 		for (Task task : tasks) {
 			boolean taskAssigned = task.isAssigned();
 			
-			if (taskAssigned = assigned) {
+			if (taskAssigned == assigned) {
 				results.add(task);
 			}
 		}	
@@ -95,7 +101,7 @@ public class TaskManager {
 		for (Task task : tasks) {
 			boolean taskDone = task.isDone();
 			
-			if (taskDone = done) {
+			if (taskDone == done) {
 				results.add(task);
 			}
 		}

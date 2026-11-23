@@ -14,6 +14,18 @@ public class EmployeeImp extends Employee{
         return !taskManager.getTasks().isEmpty();
     }
 
+    @Override
+    public void addTask(Task task)
+    {
+        taskManager.addTask(task);
+    }
+
+    @Override
+    public void removeTask(Task task)
+    {
+        taskManager.removeTask(task);
+    }
+
     public EmployeeTaskManager getTaskManager()
     {
         return taskManager;

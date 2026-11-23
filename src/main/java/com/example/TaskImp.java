@@ -77,7 +77,6 @@ public class TaskImp implements Task {
 			for (Employee employee : new ArrayList<>(employees)) {
 				// updating employee attributes based on task that is done 
 				employee.removeTask(this);
-				employee.setTaskStatus(false);
 				employee.setWorking(false);
 			}
 		
@@ -102,7 +101,6 @@ public class TaskImp implements Task {
 			// add Employee employee onto list that is working on task
 			employees.add(employee);
 			employee.addTask(this);
-			employee.setTaskStatus(true);
 				
 			assigned = true;
 		}
@@ -120,7 +118,7 @@ public class TaskImp implements Task {
 	// so it's easy to tell what employees are already assigned 
 	// assign all employees not on list to a task 
 	@Override
-	public List<Employee> getEmployees() {
+	public List<Employee> getAssignedEmployees() {
 		return new ArrayList<>(employees);
 	}		
 	

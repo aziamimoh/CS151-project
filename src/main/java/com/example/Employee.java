@@ -6,14 +6,12 @@ public abstract class Employee {
     private int id;
     private int skillLevel;
     private boolean working;
-    private boolean hasTask;
 
-    public Employee(String name, int id, int skillLevel, boolean working, boolean hasTask){
+    public Employee(String name, int id, int skillLevel, boolean working){
         this.name = name;
         this.id = id;
         this.skillLevel = skillLevel;
         this.working = working;
-        this.hasTask = hasTask;
         this.taskManager = new EmployeeTaskManager();
     }
 
@@ -49,14 +47,6 @@ public abstract class Employee {
         this.working = working;
     }
 
-    public boolean isAssignedTask() {
-		return hasTask;
-	}
-    
-    public void setTaskStatus(boolean hasTask) {
-		this.hasTask = hasTask;
-	}
-
     private EmployeeTaskManager taskManager;
     
     public void addTask(Task task) {
@@ -65,5 +55,9 @@ public abstract class Employee {
 
 	public void removeTask(Task task) {
 		taskManager.removeTask(task);
+	}
+	
+	public boolean hasTasks() {
+		return !taskManager.getTasks().isEmpty();
 	}
 }

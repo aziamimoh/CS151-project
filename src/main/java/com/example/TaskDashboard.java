@@ -593,12 +593,12 @@ public class TaskDashboard extends Application {
 
     private void createSampleData() {
 
-        Employee alice = new Employee("Alice", 101, 3, false, false) {};
-		Employee tyler = new Employee("Tyler", 102, 2, false, false) {};
-		Employee grace = new Employee("Grace", 103, 2, false, false) {};
-		Employee olivia = new Employee("Olivia", 104, 4, false, false) {};
-		Employee ethan = new Employee("Ethan", 105, 1, false, false) {};
-		Employee mia = new Employee("Mia", 106, 3, false, false) {};
+        Employee alice = new Employee("Alice", 101, 3, false) {};
+		Employee tyler = new Employee("Tyler", 102, 2, false) {};
+		Employee grace = new Employee("Grace", 103, 2, false) {};
+		Employee olivia = new Employee("Olivia", 104, 4, false) {};
+		Employee ethan = new Employee("Ethan", 105, 1, false) {};
+		Employee mia = new Employee("Mia", 106, 3, false) {};
 
         employees.add(alice);
         employees.add(tyler);
@@ -947,7 +947,7 @@ public class TaskDashboard extends Application {
         for (Employee employee : employees) {
 
             if (!employee.isWorking()
-                    && !employee.isAssignedTask()) {
+                    && !employee.hasTasks()) {
 
                 return employee;
             }

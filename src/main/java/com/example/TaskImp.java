@@ -70,13 +70,12 @@ public class TaskImp implements Task {
 	// helper methods for state pattern behavior
     // assign employee while task is NOT assigned
     private boolean assignFromUnassigned(Employee employee) {
-        if (employee == null || employee.isWorking() || employee.isAssignedTask()) {
+        if (employee == null || employee.isWorking() || employee.hasTasks()) {
             return false;
         }
 
         employees.add(employee);
         employee.addTask(this);
-        employee.setTaskStatus(true);
 
         state = TaskState.ASSIGNED;
 
@@ -105,7 +104,6 @@ public class TaskImp implements Task {
 
         for (Employee employee : new ArrayList<>(employees)) {
             employee.removeTask(this);
-            employee.setTaskStatus(false);
             employee.setWorking(false);
         }
 
@@ -120,7 +118,6 @@ public class TaskImp implements Task {
     private boolean unassignFromAssigned() {
         for (Employee employee : new ArrayList<>(employees)) {
             employee.removeTask(this);
-            employee.setTaskStatus(false);
             employee.setWorking(false);
         }
 
@@ -185,7 +182,6 @@ public class TaskImp implements Task {
 			for (Employee employee : new ArrayList<>(employees)) {
 				// updating employee attributes based on task that is done 
 				employee.removeTask(this);
-				employee.setTaskStatus(false);
 				employee.setWorking(false);
 			}
 		
@@ -206,11 +202,10 @@ public class TaskImp implements Task {
 		}
 		
 		// check for all proper attributes to be false in order to assign employee to a task
-		if (!employee.isWorking() && !employee.isAssignedTask()) {
+		if (!employee.isWorking() && !employee.hasTasks()) {
 			// add Employee employee onto list that is working on task
 			employees.add(employee);
 			employee.addTask(this);
-			employee.setTaskStatus(true);
 				
 			assigned = true;
 		}

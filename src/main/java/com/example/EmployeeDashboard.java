@@ -48,7 +48,7 @@ public class EmployeeDashboard extends Application {
         search.setPromptText("Search employee name or ID...");
         search.setPrefHeight(39);
         ComboBox<String> skillFilter = new ComboBox<>(FXCollections.observableArrayList(
-            "All Skill Levels", "Level 1", "Level 2", "Level 3", "Level 4"));
+            "All Skill Levels", "Level 1", "Level 2", "Level 3", "Level 4, Level 5"));
         skillFilter.setValue("All Skill Levels");
         skillFilter.setMaxWidth(Double.MAX_VALUE);
         skillFilter.setPrefHeight(39);

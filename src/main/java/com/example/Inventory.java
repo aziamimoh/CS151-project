@@ -5,17 +5,15 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-  //Manages the restaurant's inventory of items and their quantities
-  //Implements the Iterator Pattern (Iterable<InventoryItem>) to allow sequential
-  //traversal without exposing the internal Map or ObservableList
+// Manages the restaurant's inventory of items and their quantities.
+// Uses the Iterator Design Pattern to traverse inventory items
+// without exposing the internal collection
  
-public class Inventory
-implements InventoryOperations, Iterable<InventoryItem> {
+public class Inventory implements InventoryOperations{
 
 private final Map<Item, Integer> stock;
 private final ObservableList<InventoryItem> observableItems;
@@ -26,34 +24,13 @@ public Inventory() {
   this.observableItems = FXCollections.observableArrayList();
 }
 
-//Returns a read-only iterator over the inventory
-
-@Override
-public Iterator<InventoryItem> iterator() {
-  return Collections.unmodifiableList(observableItems).iterator();
+// Creates a custom iterator for traversing the inventory
+// using the Iterator Design Pattern
+public InventoryIterator createIterator() {
+  return new InventoryIteratorImpl(
+          Collections.unmodifiableList(observableItems)
+  );
 }
-
- //Returns an iterator containing only items at or below
- //the specified stock threshold
-
-public Iterator<InventoryItem> lowStockIterator(int threshold) {
-  if (threshold < 0) {
-      throw new IllegalArgumentException(
-              "Threshold cannot be negative: " + threshold
-      );
-  }
-
-  List<InventoryItem> filtered = new ArrayList<>();
-
-  for (InventoryItem entry : this) {
-      if (entry.getQuantity() <= threshold) {
-          filtered.add(entry);
-      }
-  }
-
-  return Collections.unmodifiableList(filtered).iterator();
-}
-
  //Gives a read-only observable list for JavaFX components
 
 public ObservableList<InventoryItem> getObservableItems() {
@@ -192,13 +169,24 @@ public Item searchByName(String name) {
 
   String searchName = name.trim();
 
-  for (InventoryItem entry : this) {
-      if (entry.getName().equalsIgnoreCase(searchName)) {
-          return entry.getItem();
-      }
-  }
+  InventoryIterator iterator = createIterator();
 
-  return null;
+    if (iterator.isDone()) {
+        return null;
+    }
+
+    InventoryItem entry = iterator.first();
+
+    while (!iterator.isDone()) {
+
+        if (entry.getName().equalsIgnoreCase(searchName)) {
+            return entry.getItem();
+        }
+
+        entry = iterator.next();
+    }
+
+    return null;
 }
 
 //Returns all inventory items of the specified type
@@ -206,21 +194,31 @@ public Item searchByName(String name) {
 
 @Override
 public List<Item> searchByType(String type) {
-  List<Item> results = new ArrayList<>();
+    List<Item> results = new ArrayList<>();
 
-  if (type == null || type.isBlank()) {
-      return results;
-  }
+    if (type == null || type.isBlank()) {
+        return results;
+    }
 
-  String searchType = type.trim();
+    String searchType = type.trim();
+    InventoryIterator iterator = createIterator();
 
-  for (InventoryItem entry : this) {
-      if (entry.getType().equalsIgnoreCase(searchType)) {
-          results.add(entry.getItem());
-      }
-  }
+    if (iterator.isDone()) {
+        return results;
+    }
 
-  return results;
+    InventoryItem entry = iterator.first();
+
+    while (!iterator.isDone()) {
+
+        if (entry.getType().equalsIgnoreCase(searchType)) {
+            results.add(entry.getItem());
+        }
+
+        entry = iterator.next();
+    }
+
+    return results;
 }
 
 //Returns all items whose quantity is less than or equal
@@ -228,34 +226,54 @@ public List<Item> searchByType(String type) {
 
 @Override
 public List<Item> getLowStockItems(int threshold) {
-  if (threshold < 0) {
-      throw new IllegalArgumentException(
-              "Threshold cannot be negative: " + threshold
-      );
-  }
+    if (threshold < 0) {
+        throw new IllegalArgumentException(
+                "Threshold cannot be negative: " + threshold
+        );
+    }
 
-  List<Item> lowStockItems = new ArrayList<>();
-  Iterator<InventoryItem> it = lowStockIterator(threshold);
+    List<Item> lowStockItems = new ArrayList<>();
+    InventoryIterator iterator = createIterator();
 
-  while (it.hasNext()) {
-      lowStockItems.add(it.next().getItem());
-  }
+    if (iterator.isDone()) {
+        return lowStockItems;
+    }
 
-  return lowStockItems;
+    InventoryItem entry = iterator.first();
+
+    while (!iterator.isDone()) {
+
+        if (entry.getQuantity() <= threshold) {
+            lowStockItems.add(entry.getItem());
+        }
+
+        entry = iterator.next();
+    }
+
+    return lowStockItems;
 }
 
  //Returns a read-only list containing all inventory items
 
-@Override
-public List<Item> getItems() {
-  List<Item> items = new ArrayList<>();
-
-  for (InventoryItem entry : this) {
-      items.add(entry.getItem());
-  }
-
-  return Collections.unmodifiableList(items);
-}
+ @Override
+ public List<Item> getItems() {
+     List<Item> items = new ArrayList<>();
+ 
+     InventoryIterator iterator = createIterator();
+ 
+     if (iterator.isDone()) {
+         return Collections.unmodifiableList(items);
+     }
+ 
+     InventoryItem entry = iterator.first();
+ 
+     while (!iterator.isDone()) {
+         items.add(entry.getItem());
+         entry = iterator.next();
+     }
+ 
+     return Collections.unmodifiableList(items);
+ }
 
 //Returns the number of different items in the inventory
 
@@ -273,10 +291,21 @@ private InventoryItem findWrapper(Item item) {
       return null;
   }
 
-  for (InventoryItem entry : this) {
+  InventoryIterator iterator = createIterator();
+
+  if (iterator.isDone()) {
+      return null;
+  }
+
+  InventoryItem entry = iterator.first();
+
+  while (!iterator.isDone()) {
+
       if (entry.getName().equalsIgnoreCase(item.getName())) {
           return entry;
       }
+
+      entry = iterator.next();
   }
 
   return null;

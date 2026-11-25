@@ -108,6 +108,9 @@ public class TaskImp implements Task {
         }
 
         employees.clear();
+		
+		assigned = false;
+        done = true;
         state = TaskState.COMPLETED;
 
         return true;
@@ -192,24 +195,15 @@ public class TaskImp implements Task {
 	}
 	
 	@Override
-	public void assignEmployee(Employee employee) {
-		if (employee == null || done) {
-			return;
-		}
-		
-		if (employees.contains(employee)) {
-			return;
-		}
-		
-		// check for all proper attributes to be false in order to assign employee to a task
-		if (!employee.isWorking() && !employee.hasTasks()) {
-			// add Employee employee onto list that is working on task
-			employees.add(employee);
-			employee.addTask(this);
-				
-			assigned = true;
-		}
-	}
+    public void assignEmployee(Employee employee) {
+    if (employee == null || done) {
+        return;
+    }
+
+    if (state.assign(this, employee)) {
+        assigned = true;
+    }
+}
 	
 	@Override
 	public void completeTask() {
@@ -218,11 +212,9 @@ public class TaskImp implements Task {
 	
 	// do task that it is assigned to
 	@Override
-	public void doTask(Employee employee) {
-		if (employees.contains(employee)) {
-			employee.setWorking(true);
-		}
-	}
+    public void doTask(Employee employee) {
+    state.start(this, employee);
+}
 	
 	// all assigned employees method implementation from interface
 	// so it's easy to tell what employees are already assigned 

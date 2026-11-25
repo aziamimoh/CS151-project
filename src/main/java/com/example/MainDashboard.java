@@ -1,5 +1,6 @@
 package com.example;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -9,6 +10,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 public class MainDashboard extends Application {
     private static final int LOW_STOCK_LIMIT = 10;
@@ -16,6 +19,7 @@ public class MainDashboard extends Application {
 
     private Inventory inventory = new Inventory();
     private TaskManager taskManager = new TaskManager();
+    private List<Employee> employees = new ArrayList<>();
     private final Label itemsValue = new Label();
     private final Label lowStockValue = new Label();
     private final Label openTasksValue = new Label();
@@ -40,11 +44,11 @@ public class MainDashboard extends Application {
         goTo.setStyle("-fx-font-weight: bold; -fx-font-size: 17px;");
 
         Button inventoryButton = navButton("Open Inventory Dashboard", "#22476e");
-        inventoryButton.setOnAction(event -> comingSoon("Inventory Dashboard"));
+        inventoryButton.setOnAction(event -> new InventoryView(inventory).show());
         Button employeeButton = navButton("Open Employee Dashboard", "#5a1d22");
-        employeeButton.setOnAction(event -> new EmployeeDashboard().start(new Stage()));
+        employeeButton.setOnAction(event -> new EmployeeDashboard(employees).start(new Stage()));
         Button taskButton = navButton("Open Task Manager", "#04600d");
-        taskButton.setOnAction(event -> comingSoon("Task Manager"));
+        taskButton.setOnAction(event -> new TaskDashboard(taskManager, employees).start(new Stage()));
 
         HBox nav = new HBox(18,
             navCard("Inventory", inventoryButton),
@@ -54,9 +58,16 @@ public class MainDashboard extends Application {
         for (Node node : nav.getChildren()) HBox.setHgrow(node, Priority.ALWAYS);
 
         HBox lists = new HBox(18,
-            listPanel("LOW STOCK", lowStockRows, "Inventory Dashboard"),
-            listPanel("OPEN TASKS", taskRows, "Task Manager")
-        );
+            listPanel(
+                "LOW STOCK",
+                lowStockRows,
+                event -> new InventoryView(inventory).show()
+            ),
+            listPanel(
+                "OPEN TASKS",
+                taskRows,
+                event -> new TaskDashboard(taskManager, employees).start(new Stage())
+        ));
         for (Node node : lists.getChildren()) HBox.setHgrow(node, Priority.ALWAYS);
         VBox.setVgrow(lists, Priority.ALWAYS);
 
@@ -68,6 +79,14 @@ public class MainDashboard extends Application {
 
         stage.setTitle("Restaurant Simulator");
         stage.setScene(new Scene(root, 1200, 730));
+
+        stage.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (isFocused) {
+                refreshCounts();
+                refreshLists();
+            }
+        });
+        
         stage.show();
     }
 
@@ -104,12 +123,12 @@ public class MainDashboard extends Application {
         return box;
     }
 
-    private VBox listPanel(String caption, VBox rows, String screen) {
+    private VBox listPanel(String caption, VBox rows, EventHandler<ActionEvent> action) { 
         Label sectionTitle = new Label(caption);
         sectionTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 17px;");
         Hyperlink viewAll = new Hyperlink("View all");
         viewAll.setStyle("-fx-font-size: 15px; -fx-text-fill: #174e8c; -fx-underline: true;");
-        viewAll.setOnAction(event -> comingSoon(screen));
+        viewAll.setOnAction(action);
         HBox sectionHeader = new HBox(15, sectionTitle, spacer(), viewAll);
         sectionHeader.setAlignment(Pos.CENTER_LEFT);
         sectionHeader.setPadding(new Insets(10, 18, 8, 18));
@@ -169,12 +188,18 @@ public class MainDashboard extends Application {
     }
 
     /** Provide the Inventory and TaskManager this dashboard should display. */
-    public void setData(Inventory newInventory, TaskManager newTaskManager) {
+    public void setData(
+        Inventory newInventory,
+        TaskManager newTaskManager,
+        List<Employee> newEmployees) {
+
         inventory = newInventory;
         taskManager = newTaskManager;
-        refreshCounts();
-        refreshLists();
-    }
+        employees = newEmployees;
+
+    refreshCounts();
+    refreshLists();
+}
 
     private void refreshCounts() {
         itemsValue.setText(Integer.toString(inventory.size()));
@@ -196,12 +221,5 @@ public class MainDashboard extends Application {
         for (int i = 0; i < openTasks.size() && i < MAX_ROWS; i++) {
             taskRows.getChildren().add(taskRow(openTasks.get(i)));
         }
-    }
-
-    private void comingSoon(String screen) {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setHeaderText(screen);
-        info.setContentText("This screen is coming soon.");
-        info.showAndWait();
     }
 }

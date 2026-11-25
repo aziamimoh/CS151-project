@@ -1,6 +1,5 @@
 package com.example;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,14 +44,24 @@ public class TaskDashboard extends Application {
     private Label assignedTasksValue;
     private Label unassignedTasksValue;
 
+    public TaskDashboard(TaskManager taskManager, List<Employee> employees) {
+        if (taskManager == null) {
+            throw new IllegalArgumentException("TaskManager cannot be null");
+        }
+    
+        if (employees == null) {
+            throw new IllegalArgumentException("Employees cannot be null");
+        }
+    
+        this.taskManager = taskManager;
+        this.employees = employees;
+    }
+
     @Override
     public void start(Stage stage) {
 
-        taskManager = new TaskManager();
-        employees = new ArrayList<>();
         visibleRows = FXCollections.observableArrayList();
-
-        createSampleData();
+        initializeTaskNumbers();
 
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(20));
@@ -589,100 +598,6 @@ public class TaskDashboard extends Application {
         return tablePanel;
     }
 
-    // Sample employees and tasks for testing
-
-    private void createSampleData() {
-
-        Employee alice = new Employee("Alice", 101, 3, false) {};
-		Employee tyler = new Employee("Tyler", 102, 2, false) {};
-		Employee grace = new Employee("Grace", 103, 2, false) {};
-		Employee olivia = new Employee("Olivia", 104, 4, false) {};
-		Employee ethan = new Employee("Ethan", 105, 1, false) {};
-		Employee mia = new Employee("Mia", 106, 3, false) {};
-
-        employees.add(alice);
-        employees.add(tyler);
-        employees.add(grace);
-        employees.add(olivia);
-        employees.add(ethan);
-        employees.add(mia);
-
-        TaskImp takeOutTrash =
-                addSampleTask("Take out trash", 15, 3);
-
-        addSampleTask("Wash dishes", 30, 2);
-
-        TaskImp wipeCountertops =
-                addSampleTask("Wipe countertops", 10, 2);
-
-        TaskImp countMoney =
-                addSampleTask("Count money", 5, 1);
-
-        TaskImp sweepDiningRoom =
-                addSampleTask("Sweep dining room", 20, 2);
-
-        TaskImp restockNapkins =
-                addSampleTask("Restock napkins", 10, 1);
-
-        addSampleTask("Clean windows", 25, 3);
-        addSampleTask("Mop kitchen", 25, 4);
-
-        TaskImp prepareVegetables =
-                addSampleTask("Prepare vegetables", 20, 3);
-
-        addSampleTask("Check refrigerator", 8, 1);
-
-        // Six tasks are assigned; four remain unassigned.
-
-        takeOutTrash.assignEmployee(alice);
-
-        wipeCountertops.assignEmployee(tyler);
-        wipeCountertops.doTask(tyler);
-
-        countMoney.assignEmployee(grace);
-        countMoney.doTask(grace);
-
-        sweepDiningRoom.assignEmployee(olivia);
-
-        restockNapkins.assignEmployee(ethan);
-
-        prepareVegetables.assignEmployee(mia);
-    }
-
-    private TaskImp addSampleTask(
-            String name,
-            int length,
-            int difficulty) {
-
-        TaskImp task = new TaskImp(
-                name,
-                length,
-                difficulty,
-                false,
-                false
-        );
-
-        taskManager.addTask(task);
-
-        taskNumbers.put(task, taskNumbers.size() + 1);
-
-        return task;
-    }
-
-    // Search for a task by name
-
-    private Task findTaskByName(String name) {
-
-        for (Task task : taskManager.getTasks()) {
-
-            if (task.getName().equalsIgnoreCase(name)) {
-                return task;
-            }
-        }
-
-        return null;
-    }
-
     // Clear all filters
 
     private void clearFilters() {
@@ -695,6 +610,17 @@ public class TaskDashboard extends Application {
         statusFilter.setValue("All statuses");
 
         refreshTable();
+    }
+
+    private void initializeTaskNumbers() {
+        taskNumbers.clear();
+    
+        int number = 1;
+    
+        for (Task task : taskManager.getTasks()) {
+            taskNumbers.put(task, number);
+            number++;
+        }
     }
 
     // Refresh dashboard information

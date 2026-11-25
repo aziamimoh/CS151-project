@@ -1,5 +1,7 @@
 package com.example;
 
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -21,18 +23,16 @@ public class EmployeeDashboard extends Application {
     private final Label unscheduledValue = new Label();
     private final Label rowCount = new Label();
 
+    public EmployeeDashboard(List<Employee> employees) {
+    if (employees == null) {
+        throw new IllegalArgumentException("Employees cannot be null");
+    }
+
+    setEmployees(employees);
+    }
+
     @Override
     public void start(Stage stage) {
-        // Demo records: replace with your existing EmployeeImp objects.
-        setEmployees(FXCollections.observableArrayList(
-            new EmployeeImp("Alex Morgan", 101, 3, true),
-            new EmployeeImp("Jordan Lee", 102, 2, true),
-            new EmployeeImp("Taylor Smith", 103, 1, false),
-            new EmployeeImp("Casey Brown", 104, 4, true),
-            new EmployeeImp("Sam Rivera", 105, 2, false),
-            new EmployeeImp("Jamie Chen", 106, 3, true),
-            new EmployeeImp("Riley Davis", 107, 1, false)
-        ));
 
         Label title = new Label("EMPLOYEES");
         title.setStyle("-fx-font-size: 34px; -fx-font-weight: bold; -fx-text-fill: #121820;");

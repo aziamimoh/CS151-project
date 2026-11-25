@@ -86,7 +86,7 @@ public class TaskManager {
 		for (Task task : tasks) {
 			boolean taskAssigned = task.isAssigned();
 			
-			if (taskAssigned = assigned) {
+			if (taskAssigned == assigned) {
 				results.add(task);
 			}
 		}	
@@ -101,7 +101,7 @@ public class TaskManager {
 		for (Task task : tasks) {
 			boolean taskDone = task.isDone();
 			
-			if (taskDone = done) {
+			if (taskDone == done) {
 				results.add(task);
 			}
 		}

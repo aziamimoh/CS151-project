@@ -124,25 +124,13 @@ public class TaskDashboard extends Application {
         unassignedTasksValue = createMetricValue();
 
         VBox totalCard = createSummaryCard(
-                "TOTAL TASKS",
-                totalTasksValue,
-                "#E2EEFC",
-                "#244A78"
-        );
+        "TOTAL TASKS", totalTasksValue, "#DFF1E7", "#246443");
 
-        VBox assignedCard = createSummaryCard(
-                "ASSIGNED",
-                assignedTasksValue,
-                "#DFF1E7",
-                "#246443"
-        );
+		VBox assignedCard = createSummaryCard(
+        "ASSIGNED", assignedTasksValue, "#E2EEFC", "#244A78");
 
-        VBox unassignedCard = createSummaryCard(
-                "UNASSIGNED",
-                unassignedTasksValue,
-                "#FFF0D8",
-                "#8A5A16"
-        );
+		VBox unassignedCard = createSummaryCard(
+        "UNASSIGNED", unassignedTasksValue, "#EEE5FA", "#5B3A84");
 
         HBox cards = new HBox(
                 14,

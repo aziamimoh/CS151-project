@@ -9,220 +9,194 @@ public class TaskImp implements Task {
 	private String name;
 	private int length;
 	private int difficulty;
-	private boolean assigned;
-	private boolean done;
-	private TaskState state = TaskState.UNASSIGNED;
 	
-	// class constructor
-	public TaskImp(String name, int length, int difficulty, boolean assigned, boolean done) {
-		this.employees = new ArrayList<>();
-		this.name = name;
-		this.length = length;
-		this.difficulty = difficulty;
-		this.assigned = assigned;
-		this.done = done;
-	}
-	
-	// state pattern implementation
-	private enum TaskState {
-		UNASSIGNED {
-			@Override
-			boolean assign(TaskImp task, Employee employee) {
-				return task.assignFromUnassigned(employee);
-			}
-		},
+	// state pattern objects
+    private final TaskState unassignedState;
+    private final TaskState assignedState;
+    private final TaskState inProgressState;
+    private final TaskState completedState;
 
-		ASSIGNED {
-			@Override
-			boolean start(TaskImp task, Employee employee) {
-				return task.startFromAssigned(employee);
-			}
-		},
+    // current task state
+    private TaskState currentState;
 
-		IN_PROGRESS {
-			@Override
-			boolean start(TaskImp task, Employee employee) {
-				return task.startFromAssigned(employee);
-			}
 
-			@Override
-			boolean complete(TaskImp task) {
-				return task.completeFromInProgress();
-			}
-		},
+    // constructor
+    public TaskImp(String name, int length, int difficulty, boolean assigned, boolean done) {
+        employees = new ArrayList<>();
 
-		COMPLETED;
+        this.name = name;
+        this.length = length;
+        this.difficulty = difficulty;
 
-			boolean assign(TaskImp task, Employee employee) {
-				return false;
-			}
+        // create the four state objects
+        unassignedState = new UnassignedState();
+        assignedState = new AssignedState();
+        inProgressState = new InProgressState();
+        completedState = new CompletedState();
 
-			boolean start(TaskImp task, Employee employee) {
-				return false;
-			}
-
-			boolean complete(TaskImp task) {
-				return false;
-			}
-			
-	}
-	
-	// helper methods for state pattern behavior
-    // assign employee while task is NOT assigned
-    private boolean assignFromUnassigned(Employee employee) {
-        if (employee == null || employee.isWorking() || employee.hasTasks()) {
-            return false;
+        // setting up the initial state
+        if (done) {
+            currentState = completedState;
+        } else if (assigned) {
+            currentState = assignedState;
+        } else {
+            currentState = unassignedState;
         }
-
-        employees.add(employee);
-        employee.addTask(this);
-
-        state = TaskState.ASSIGNED;
-
-        return true;
     }
 
 
-    // Start task while task is ASSIGNED
-    private boolean startFromAssigned(Employee employee) {
-        if (employee == null || !employees.contains(employee) || employee.isWorking()) {
-            return false;
-        }
-
-        employee.setWorking(true);
-        state = TaskState.IN_PROGRESS;
-
-        return true;
+    // constructor for a new unassigned task
+    public TaskImp(String name, int length, int difficulty) {
+        this(name, length, difficulty, false, false);
     }
 
 
-    // Complete task while task is IN_PROGRESS
-    private boolean completeFromInProgress() {
-        if (employees.isEmpty()) {
-            return false;
-        }
+    // methods used by the state classes
+    
+    public boolean canAssignEmployee(Employee employee) {
+        return employee != null && !employee.isWorking() && !employee.hasTasks() && employee.getSkillLevel() >= difficulty;
+    }
 
+    public void addAssignedEmployee(Employee employee) {
+        if (employee != null && !employees.contains(employee)) {
+            employees.add(employee);
+        }
+    }
+
+    public boolean hasAssignedEmployee(Employee employee) {
+        return employee != null && employees.contains(employee);
+    }
+
+    public boolean hasAssignedEmployees() {
+        return !employees.isEmpty();
+    }
+
+    public void releaseAssignedEmployees() {
         for (Employee employee : new ArrayList<>(employees)) {
             employee.removeTask(this);
             employee.setWorking(false);
         }
-
+        
         employees.clear();
-		
-		assigned = false;
-        done = true;
-        state = TaskState.COMPLETED;
-
-        return true;
     }
 
 
-    // Unassign task while task is ASSIGNED
-    private boolean unassignFromAssigned() {
-        for (Employee employee : new ArrayList<>(employees)) {
-            employee.removeTask(this);
-            employee.setWorking(false);
+    // change the current state
+    public void changeState(TaskState newState) {
+        if (newState != null) {
+            currentState = newState;
         }
-
-        employees.clear();
-        state = TaskState.UNASSIGNED;
-
-        return true;
     }
-	
-	// getters and setters
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	@Override 
-	public int getLength() {
-		return length;
-	} 
-	
-	@Override
-	public void setLength(int length) {
-		this.length = length;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return difficulty;
-	}
-	
-	@Override 
-	public void setDifficulty(int difficulty) {
-		this.difficulty = difficulty;
-	}
-	
-	@Override
-	public boolean isAssigned() {
-		return assigned;
-	}
-	
-	@Override
-	public void setAssigned(boolean assigned) {
-		this.assigned = assigned;
-	}
-	
-	@Override
-	public boolean isDone() {
-		return done;
-	}
-	
-	@Override
-	public void setDone(boolean done) {
-		this.done = done;
-		
-		if (done) {
-			// removes task based upon employee that is assigned to it
-			for (Employee employee : new ArrayList<>(employees)) {
-				// updating employee attributes based on task that is done 
-				employee.removeTask(this);
-				employee.setWorking(false);
-			}
-		
-			// task has no employees on it
-			employees.clear();
-			assigned = false;
-		}
-	}
-	
-	@Override
+
+    // state pattern getters
+    
+    public TaskState getUnassignedState() {
+        return unassignedState;
+    }
+
+    public TaskState getAssignedState() {
+        return assignedState;
+    }
+
+    public TaskState getInProgressState() {
+        return inProgressState;
+    }
+
+    public TaskState getCompletedState() {
+        return completedState;
+    }
+
+
+    // task information getters and setters
+    
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public int getLength() {
+        return length;
+    }
+
+    @Override
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    @Override
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    @Override
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+
+    // checking whether task is assigned
+
+    @Override
+    public boolean isAssigned() {
+        return currentState == assignedState || currentState == inProgressState;
+    }
+
+    @Override
+    public void setAssigned(boolean assigned) {
+        if (!assigned) {
+            currentState.unassignTask(this);
+        }
+    }
+
+
+    // checking whether task is completed
+
+    @Override
+    public boolean isDone() {
+        return currentState == completedState;
+    }
+
+    @Override
+    public void setDone(boolean done) {
+        if (done) {
+            currentState.completeTask(this);
+        }
+    }
+
+
+    // public task actions
+    // delegating proper behavior to the current state
+
+    @Override
     public void assignEmployee(Employee employee) {
-    if (employee == null || done) {
-        return;
+        currentState.assignEmployee(this, employee);
     }
 
-    if (state.assign(this, employee)) {
-        assigned = true;
-    }
-}
-	
-	@Override
-	public void completeTask() {
-		state.complete(this);
-	}
-	
-	// do task that it is assigned to
-	@Override
+    @Override
     public void doTask(Employee employee) {
-    state.start(this, employee);
-}
-	
-	// all assigned employees method implementation from interface
-	// so it's easy to tell what employees are already assigned 
-	// assign all employees not on list to a task 
-	@Override
-	public List<Employee> getAssignedEmployees() {
-		return new ArrayList<>(employees);
-	}		
-	
-}
+        currentState.doTask(this, employee);
+    }
 
+    @Override
+    public void completeTask() {
+        currentState.completeTask(this);
+    }
+
+
+    // getting list of total assigned employees
+    @Override
+    public List<Employee> getAssignedEmployees() {
+        return new ArrayList<>(employees);
+    }
+
+    // getting readable current state name
+    public String getStateName() {
+        return currentState.getStateName();
+    }
+}

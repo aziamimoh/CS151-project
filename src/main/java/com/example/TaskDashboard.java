@@ -59,7 +59,6 @@ public class TaskDashboard extends Application {
 
     @Override
     public void start(Stage stage) {
-
         visibleRows = FXCollections.observableArrayList();
         initializeTaskNumbers();
 
@@ -89,10 +88,9 @@ public class TaskDashboard extends Application {
         stage.show();
     }
 
-    // Dashboard title
+    // dashboard title
 
     private VBox createHeader() {
-
         Label title = new Label("TASK MANAGER");
 
         title.setStyle(
@@ -115,10 +113,9 @@ public class TaskDashboard extends Application {
         return header;
     }
 
-    // Summary cards
+    // summary cards
 
     private HBox createSummaryCards() {
-
         totalTasksValue = createMetricValue();
         assignedTasksValue = createMetricValue();
         unassignedTasksValue = createMetricValue();
@@ -147,7 +144,6 @@ public class TaskDashboard extends Application {
     }
 
     private Label createMetricValue() {
-
         Label value = new Label("0");
 
         value.setStyle(
@@ -196,10 +192,9 @@ public class TaskDashboard extends Application {
         return card;
     }
 
-    // Search and filter section
+    // search and filter section
 
     private VBox createFilterPanel() {
-
         Label panelTitle = new Label("SEARCH & FILTER TASKS");
 
         panelTitle.setStyle(
@@ -365,10 +360,9 @@ public class TaskDashboard extends Application {
         );
     }
 
-    // Task table
+    // task table
 
     private VBox createTaskTable() {
-
         Label tableTitle = new Label("TASKS");
 
         tableTitle.setStyle(
@@ -409,7 +403,7 @@ public class TaskDashboard extends Application {
                 "-fx-border-radius: 7px;"
         );
 
-        // Task number column
+        // task number column
 
         TableColumn<TaskRow, String> numberColumn =
                 new TableColumn<>("#");
@@ -422,7 +416,7 @@ public class TaskDashboard extends Application {
 
         numberColumn.setPrefWidth(45);
 
-        // Task name column
+        // task name column
 
         TableColumn<TaskRow, String> nameColumn =
                 new TableColumn<>("TASK NAME");
@@ -435,7 +429,7 @@ public class TaskDashboard extends Application {
 
         nameColumn.setPrefWidth(220);
 
-        // Length column
+        // length column
 
         TableColumn<TaskRow, String> lengthColumn =
                 new TableColumn<>("LENGTH");
@@ -448,7 +442,7 @@ public class TaskDashboard extends Application {
 
         lengthColumn.setPrefWidth(90);
 
-        // Difficulty column
+        // difficulty column
 
         TableColumn<TaskRow, String> difficultyColumn =
                 new TableColumn<>("DIFFICULTY");
@@ -461,7 +455,7 @@ public class TaskDashboard extends Application {
 
         difficultyColumn.setPrefWidth(95);
 
-        // Availability column
+        // availability column
 
         TableColumn<TaskRow, String> availabilityColumn =
                 new TableColumn<>("AVAILABILITY");
@@ -474,7 +468,7 @@ public class TaskDashboard extends Application {
 
         availabilityColumn.setPrefWidth(110);
 
-        // Status column
+        // status column
 
         TableColumn<TaskRow, String> statusColumn =
                 new TableColumn<>("STATUS");
@@ -487,7 +481,7 @@ public class TaskDashboard extends Application {
 
         statusColumn.setPrefWidth(115);
 
-        // Employee column
+        // employee column
 
         TableColumn<TaskRow, String> employeeColumn =
                 new TableColumn<>("EMPLOYEE");
@@ -500,7 +494,7 @@ public class TaskDashboard extends Application {
 
         employeeColumn.setPrefWidth(130);
 
-        // Quick action column
+        // quick action column
 
         TableColumn<TaskRow, Void> actionColumn =
                 new TableColumn<>("QUICK ACTION");
@@ -586,10 +580,9 @@ public class TaskDashboard extends Application {
         return tablePanel;
     }
 
-    // Clear all filters
+    // clear all filters
 
     private void clearFilters() {
-
         searchField.clear();
 
         lengthFilter.setValue("All lengths");
@@ -611,18 +604,16 @@ public class TaskDashboard extends Application {
         }
     }
 
-    // Refresh dashboard information
+    // refresh dashboard information
 
     private void refreshDashboard() {
-
         refreshSummaryCards();
         refreshTable();
     }
 
-    // Update summary card numbers
+    // update summary card numbers
 
     private void refreshSummaryCards() {
-
         int total = 0;
         int assigned = 0;
         int unassigned = 0;
@@ -644,10 +635,9 @@ public class TaskDashboard extends Application {
         unassignedTasksValue.setText(String.valueOf(unassigned));
     }
 
-    // Update visible table rows
+    // update visible table rows
 
     private void refreshTable() {
-
         if (taskTable == null) {
             return;
         }
@@ -674,10 +664,9 @@ public class TaskDashboard extends Application {
         refreshSummaryCards();
     }
 
-    // Check whether a task matches the selected filters
+    // check whether a task matches the selected filters
 
     private boolean matchesFilters(Task task, String searchText) {
-
         if (!searchText.isEmpty()) {
 
             Integer number = taskNumbers.get(task);
@@ -731,19 +720,17 @@ public class TaskDashboard extends Application {
         return true;
     }
 
-    // Determine task availability
+    // determine task availability
 
     private String getAvailability(Task task) {
-
         return task.isAssigned()
                 ? "Assigned"
                 : "Unassigned";
     }
 
-    // Determine task completion status
+    // determine task completion status
 
     private String getStatus(Task task) {
-
         if (task.isDone()) {
             return "Completed";
         }
@@ -761,10 +748,9 @@ public class TaskDashboard extends Application {
         return "Not Started";
     }
 
-    // Get employee names assigned to a task
+    // get employee names assigned to a task
 
     private String getEmployeeNames(Task task) {
-
         List<Employee> assignedEmployees =
                 task.getAssignedEmployees();
 
@@ -786,10 +772,9 @@ public class TaskDashboard extends Application {
         return names.toString();
     }
 
-    // Determine which quick action the task needs
+    // determine which quick action the task needs
 
     private String getActionText(Task task) {
-
         if (task.isDone()) {
             return "Completed";
         }
@@ -805,23 +790,22 @@ public class TaskDashboard extends Application {
         return "Start";
     }
 
-    // Handle Assign, Start, and Complete button actions
+    // handle assign, start, and complete button actions
 
     private void handleTaskAction(Task task) {
-
         if (task.isDone()) {
             return;
         }
 
         if (!task.isAssigned()) {
 
-            Employee availableEmployee = findAvailableEmployee();
+            Employee availableEmployee = findAvailableEmployee(task);
 
             if (availableEmployee == null) {
 
                 showMessage(
                         "No available employees",
-                        "All employees currently have a task assigned."
+                        "No available employee has the required skill level for this task."
                 );
 
                 return;
@@ -854,26 +838,22 @@ public class TaskDashboard extends Application {
         refreshDashboard();
     }
 
-    // Find an employee who is not already assigned or working
+    // finds an available employee qualified for the task
+	
+	private Employee findAvailableEmployee(Task task) {
+		for (Employee employee : employees) {
 
-    private Employee findAvailableEmployee() {
+			if (!employee.isWorking() && !employee.hasTasks() && employee.getSkillLevel() >= task.getDifficulty()) {
+				return employee;
+			}
+		}
 
-        for (Employee employee : employees) {
+		return null;
+	}
 
-            if (!employee.isWorking()
-                    && !employee.hasTasks()) {
-
-                return employee;
-            }
-        }
-
-        return null;
-    }
-
-    // Display information messages
+    // display information messages
 
     private void showMessage(String title, String message) {
-
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
         alert.setTitle(title);
@@ -883,10 +863,9 @@ public class TaskDashboard extends Application {
         alert.showAndWait();
     }
 
-    // Stores a task and its displayed task number
+    // stores a task and its displayed task number
 
     private static class TaskRow {
-
         private final Task task;
         private final int number;
 
@@ -898,7 +877,6 @@ public class TaskDashboard extends Application {
     }
 
     public static void main(String[] args) {
-
         launch(args);
     }
 }

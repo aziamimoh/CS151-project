@@ -19,7 +19,6 @@ public class TaskImp implements Task {
     // current task state
     private TaskState currentState;
 
-
     // constructor
     public TaskImp(String name, int length, int difficulty, boolean assigned, boolean done) {
         employees = new ArrayList<>();
@@ -44,18 +43,17 @@ public class TaskImp implements Task {
         }
     }
 
-
     // constructor for a new unassigned task
     public TaskImp(String name, int length, int difficulty) {
         this(name, length, difficulty, false, false);
     }
 
-
     // methods used by the state classes
     
     public boolean canAssignEmployee(Employee employee) {
-        return employee != null && !employee.isWorking() && !employee.hasTasks() && employee.getSkillLevel() >= difficulty;
-    }
+		return employee != null && employee.isOnSchedule() && !employee.isWorking() 
+		&& !employee.hasTasks() && employee.getSkillLevel() >= difficulty;
+	}
 
     public void addAssignedEmployee(Employee employee) {
         if (employee != null && !employees.contains(employee)) {
@@ -79,7 +77,6 @@ public class TaskImp implements Task {
         
         employees.clear();
     }
-
 
     // change the current state
     public void changeState(TaskState newState) {
@@ -139,7 +136,6 @@ public class TaskImp implements Task {
         this.difficulty = difficulty;
     }
 
-
     // checking whether task is assigned
 
     @Override
@@ -154,7 +150,6 @@ public class TaskImp implements Task {
         }
     }
 
-
     // checking whether task is completed
 
     @Override
@@ -168,7 +163,6 @@ public class TaskImp implements Task {
             currentState.completeTask(this);
         }
     }
-
 
     // public task actions
     // delegating proper behavior to the current state
@@ -187,7 +181,6 @@ public class TaskImp implements Task {
     public void completeTask() {
         currentState.completeTask(this);
     }
-
 
     // getting list of total assigned employees
     @Override

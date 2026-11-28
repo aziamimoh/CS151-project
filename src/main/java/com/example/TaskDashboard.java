@@ -3,6 +3,8 @@ package com.example;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -24,6 +26,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.layout.GridPane;
 
 public class TaskDashboard extends Application {
 
@@ -48,11 +53,11 @@ public class TaskDashboard extends Application {
         if (taskManager == null) {
             throw new IllegalArgumentException("TaskManager cannot be null");
         }
-    
+
         if (employees == null) {
             throw new IllegalArgumentException("Employees cannot be null");
         }
-    
+
         this.taskManager = taskManager;
         this.employees = employees;
     }
@@ -121,13 +126,13 @@ public class TaskDashboard extends Application {
         unassignedTasksValue = createMetricValue();
 
         VBox totalCard = createSummaryCard(
-        "TOTAL TASKS", totalTasksValue, "#DFF1E7", "#246443");
+                "TOTAL TASKS", totalTasksValue, "#DFF1E7", "#246443");
 
-		VBox assignedCard = createSummaryCard(
-        "ASSIGNED", assignedTasksValue, "#E2EEFC", "#244A78");
+        VBox assignedCard = createSummaryCard(
+                "ASSIGNED", assignedTasksValue, "#E2EEFC", "#244A78");
 
-		VBox unassignedCard = createSummaryCard(
-        "UNASSIGNED", unassignedTasksValue, "#EEE5FA", "#5B3A84");
+        VBox unassignedCard = createSummaryCard(
+                "UNASSIGNED", unassignedTasksValue, "#EEE5FA", "#5B3A84");
 
         HBox cards = new HBox(
                 14,
@@ -191,7 +196,7 @@ public class TaskDashboard extends Application {
 
         return card;
     }
-
+    
     // search and filter section
 
     private VBox createFilterPanel() {
@@ -211,20 +216,10 @@ public class TaskDashboard extends Application {
 
         lengthFilter = new ComboBox<>();
 
-        lengthFilter.getItems().addAll(
-                "All lengths",
-                "5",
-                "8",
-                "10",
-                "12",
-                "15",
-                "20",
-                "25",
-                "30"
-        );
+		updateLengthFilter();
 
-        lengthFilter.setValue("All lengths");
-        styleControl(lengthFilter);
+		lengthFilter.setValue("All lengths");
+		styleControl(lengthFilter);
 
         difficultyFilter = new ComboBox<>();
 
@@ -359,7 +354,7 @@ public class TaskDashboard extends Application {
                 "-fx-font-size: 12px;"
         );
     }
-
+    
     // task table
 
     private VBox createTaskTable() {
@@ -379,10 +374,28 @@ public class TaskDashboard extends Application {
                 "-fx-font-size: 11px;" +
                 "-fx-text-fill: #758195;"
         );
+        
+        Button addTaskButton = new Button("+ Add Task");
+		Button removeTaskButton = new Button("Remove Selected");
 
-        HBox titleRow = new HBox(10, tableTitle, tableHint);
+		addTaskButton.setStyle(
+				"-fx-background-color: #16a34a;" +
+				"-fx-text-fill: white;" +
+				"-fx-font-weight: bold;" +
+				"-fx-background-radius: 6px;" +
+				"-fx-padding: 6 12 6 12;"
+		);
 
-        titleRow.setAlignment(Pos.CENTER_LEFT);
+		removeTaskButton.setOnAction(event -> removeSelectedTask());
+		addTaskButton.setOnAction(event -> addTask());
+
+		HBox titleText = new HBox(10, tableTitle, tableHint);
+		titleText.setAlignment(Pos.CENTER_LEFT);
+
+		HBox titleRow = new HBox(10, titleText, addTaskButton, removeTaskButton);
+		titleRow.setAlignment(Pos.CENTER_LEFT);
+
+		HBox.setHgrow(titleText, Priority.ALWAYS);
 
         taskTable = new TableView<>();
 
@@ -566,22 +579,21 @@ public class TaskDashboard extends Application {
                 actionColumn
         );
 
-        VBox tablePanel = new VBox(10, titleRow, taskTable);
+        VBox panel = new VBox(10, titleRow, taskTable);
 
-        tablePanel.setPadding(new Insets(14));
+        panel.setPadding(new Insets(14));
 
-        tablePanel.setStyle(
+        panel.setStyle(
                 "-fx-background-color: white;" +
                 "-fx-background-radius: 10px;" +
                 "-fx-border-color: #DCE2EA;" +
                 "-fx-border-radius: 10px;"
         );
 
-        return tablePanel;
+        return panel;
     }
-
+    
     // clear all filters
-
     private void clearFilters() {
         searchField.clear();
 
@@ -592,12 +604,140 @@ public class TaskDashboard extends Application {
 
         refreshTable();
     }
+    
+    // update the length dropdown using the lengths currently in TaskManager
+
+	private void updateLengthFilter() {
+		if (lengthFilter == null) {
+			return;
+		}
+
+		String selectedLength = lengthFilter.getValue();
+		Set<Integer> lengths = new TreeSet<>();
+	
+		for (Task task : taskManager.getTasks()) {
+			lengths.add(task.getLength());
+		}
+
+		lengthFilter.getItems().clear();
+		lengthFilter.getItems().add("All lengths");
+	
+		for (Integer length : lengths) {
+			lengthFilter.getItems().add(String.valueOf(length));
+		}
+
+		if (selectedLength != null && lengthFilter.getItems().contains(selectedLength)) {
+			lengthFilter.setValue(selectedLength);
+		} else {
+			lengthFilter.setValue("All lengths");
+		}
+	}
+
+
+	// Open a form to create a new task
+	private void addTask() {
+		Dialog<Task> dialog = new Dialog<>();
+		dialog.setTitle("Add Task");
+		dialog.setHeaderText("Enter the new task information.");
+
+		ButtonType addButtonType = new ButtonType("Add Task",
+				javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+
+		dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+		TextField nameField = new TextField();
+		nameField.setPromptText("Task name");
+
+		TextField lengthField = new TextField();
+		lengthField.setPromptText("Length in minutes");
+
+		TextField difficultyField = new TextField();
+		difficultyField.setPromptText("Difficulty (1-5)");
+
+		GridPane form = new GridPane();
+		form.setHgap(10);
+		form.setVgap(10);
+
+		form.add(new Label("Task name:"), 0, 0);
+		form.add(nameField, 1, 0);
+
+		form.add(new Label("Length:"), 0, 1);
+		form.add(lengthField, 1, 1);
+
+		form.add(new Label("Difficulty:"), 0, 2);
+		form.add(difficultyField, 1, 2);
+
+		dialog.getDialogPane().setContent(form);
+
+		dialog.setResultConverter(button -> {
+			if (button == addButtonType) {
+				String name = nameField.getText().trim();
+
+				try {
+					int length = Integer.parseInt(lengthField.getText().trim());
+					int difficulty = Integer.parseInt(difficultyField.getText().trim());
+
+					if (name.isEmpty() || length <= 0 || difficulty < 1 || difficulty > 5) {
+						showMessage("Invalid task",
+								"Enter a name, a positive length, and a difficulty from 1 to 5.");
+						return null;
+					}
+
+					return new TaskImp(name, length, difficulty);
+	
+				} catch (NumberFormatException exception) {
+					showMessage("Invalid task",
+							"Length and difficulty must be whole numbers.");
+				}
+			}
+
+			return null;
+		});
+
+		dialog.showAndWait().ifPresent(task -> {
+			taskManager.addTask(task);
+			refreshDashboard();
+		});
+	}
+
+
+	// Remove the selected task if it is not assigned
+	private void removeSelectedTask() {
+		TaskRow selectedRow = taskTable.getSelectionModel().getSelectedItem();
+
+		if (selectedRow == null) {
+			showMessage("No task selected",
+					"Select a task in the table before removing it.");
+			return;
+		}
+
+		Task selectedTask = selectedRow.task;
+
+		if (selectedTask.isAssigned()) {
+			showMessage("Task is assigned",
+					"Unassign or complete this task before removing it.");
+			return;
+		}
+
+		Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+		confirmation.setTitle("Remove Task");
+		confirmation.setHeaderText("Remove " + selectedTask.getName() + "?");
+		confirmation.setContentText(
+				"This task will be removed from the restaurant task list.");
+
+		confirmation.showAndWait().ifPresent(response -> {
+			if (response == ButtonType.OK) {
+				taskManager.removeTask(selectedTask);
+				refreshDashboard();
+			}
+		});
+	}
 
     private void initializeTaskNumbers() {
         taskNumbers.clear();
-    
+
         int number = 1;
-    
+
         for (Task task : taskManager.getTasks()) {
             taskNumbers.put(task, number);
             number++;
@@ -605,14 +745,14 @@ public class TaskDashboard extends Application {
     }
 
     // refresh dashboard information
-
     private void refreshDashboard() {
+		initializeTaskNumbers();
+		updateLengthFilter();
         refreshSummaryCards();
         refreshTable();
     }
 
     // update summary card numbers
-
     private void refreshSummaryCards() {
         int total = 0;
         int assigned = 0;
@@ -719,7 +859,7 @@ public class TaskDashboard extends Application {
 
         return true;
     }
-
+    
     // determine task availability
 
     private String getAvailability(Task task) {
@@ -789,7 +929,7 @@ public class TaskDashboard extends Application {
 
         return "Start";
     }
-
+    
     // handle assign, start, and complete button actions
 
     private void handleTaskAction(Task task) {
@@ -838,21 +978,23 @@ public class TaskDashboard extends Application {
         refreshDashboard();
     }
 
-    // finds an available employee qualified for the task
-	
-	private Employee findAvailableEmployee(Task task) {
-		for (Employee employee : employees) {
+    // finds  an available employee who is on the schedule
+		private Employee findAvailableEmployee(Task task) {
+			for (Employee employee : employees) {
 
-			if (!employee.isWorking() && !employee.hasTasks() && employee.getSkillLevel() >= task.getDifficulty()) {
-				return employee;
+				if (employee.isOnSchedule()
+						&& !employee.isWorking()
+						&& !employee.hasTasks()
+						&& employee.getSkillLevel() >= task.getDifficulty()) {
+
+					return employee;
+				}
 			}
-		}
 
 		return null;
 	}
 
     // display information messages
-
     private void showMessage(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
@@ -864,7 +1006,6 @@ public class TaskDashboard extends Application {
     }
 
     // stores a task and its displayed task number
-
     private static class TaskRow {
         private final Task task;
         private final int number;
@@ -880,4 +1021,3 @@ public class TaskDashboard extends Application {
         launch(args);
     }
 }
-

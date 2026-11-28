@@ -6,12 +6,14 @@ public abstract class Employee {
     private int id;
     private int skillLevel;
     private boolean working;
+    private boolean onSchedule;
 
-    public Employee(String name, int id, int skillLevel, boolean working){
+    public Employee(String name, int id, int skillLevel, boolean onSchedule){
         this.name = name;
         this.id = id;
         this.skillLevel = skillLevel;
-        this.working = working;
+        this.onSchedule = onSchedule;
+        this.working = false;
         this.taskManager = new EmployeeTaskManager();
     }
 
@@ -46,6 +48,14 @@ public abstract class Employee {
     public void setWorking(boolean working){
         this.working = working;
     }
+    
+    public boolean isOnSchedule() {
+		return onSchedule;
+	}
+	
+	public void setOnSchedule(boolean onSchedule) {
+		this.onSchedule = onSchedule;
+	}
 
     private EmployeeTaskManager taskManager;
     
